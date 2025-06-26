@@ -1,0 +1,1 @@
+// Schedule management functionality (placeholder for future enhancements) 

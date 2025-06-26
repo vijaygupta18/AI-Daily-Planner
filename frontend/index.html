@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Daily Planner - Smart Schedule Optimization</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="app-title">
+                    <i class="fas fa-brain"></i>
+                    AI Daily Planner
+                </h1>
+                <div class="date-selector">
+                    <button class="date-nav" id="prevDay"><i class="fas fa-chevron-left"></i></button>
+                    <input type="date" id="currentDate" class="date-input">
+                    <button class="date-nav" id="nextDay"><i class="fas fa-chevron-right"></i></button>
+                    <button class="today-btn" id="todayBtn">Today</button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="streak-indicator">
+                    <i class="fas fa-fire"></i>
+                    <span id="streakCount">0</span> day streak
+                </div>
+                <button class="icon-btn" id="syncBtn" title="Sync with Calendar">
+                    <i class="fas fa-sync"></i>
+                </button>
+                <button class="icon-btn" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Task Input Section -->
+            <section class="task-input-section">
+                <div class="input-container">
+                    <i class="fas fa-plus-circle input-icon"></i>
+                    <input 
+                        type="text" 
+                        id="taskInput" 
+                        class="task-input" 
+                        placeholder="e.g., Study ML for 2hrs tomorrow, urgent meeting at 3pm"
+                        autocomplete="off"
+                    >
+                    <button class="add-task-btn" id="addTaskBtn">
+                        <i class="fas fa-magic"></i>
+                        Parse & Add
+                    </button>
+                </div>
+                <div class="input-help">
+                    <span class="help-text">💡 Try natural language: "Review documents for 30 mins in the morning" or "Important call with client at 2pm"</span>
+                </div>
+            </section>
+
+            <!-- Task Queue -->
+            <section class="task-queue-section">
+                <div class="section-header">
+                    <h2>Task Queue</h2>
+                    <button class="optimize-btn" id="optimizeBtn">
+                        <i class="fas fa-robot"></i>
+                        Optimize Schedule
+                    </button>
+                </div>
+                <div id="taskQueue" class="task-queue">
+                    <!-- Tasks will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Schedule Timeline -->
+            <section class="schedule-section">
+                <div class="section-header">
+                    <h2>Today's Schedule</h2>
+                    <div class="schedule-actions">
+                        <button class="icon-btn" id="exportBtn" title="Export to PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                        <button class="icon-btn" id="refreshBtn" title="Refresh">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="scheduleTimeline" class="schedule-timeline">
+                    <!-- Timeline will be dynamically generated -->
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard -->
+            <section class="analytics-section">
+                <h2>Today's Progress</h2>
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="completionRate">0%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="productiveHours">0h</div>
+                            <div class="stat-label">Productive Hours</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="tasksCompleted">0/0</div>
+                            <div class="stat-label">Tasks Completed</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="priorityScore">0</div>
+                            <div class="stat-label">Priority Score</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <h4>Work Hours</h4>
+                    <div class="setting-row">
+                        <label for="workStart">Start Time:</label>
+                        <input type="time" id="workStart" value="08:00">
+                    </div>
+                    <div class="setting-row">
+                        <label for="workEnd">End Time:</label>
+                        <input type="time" id="workEnd" value="20:00">
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>Breaks</h4>
+                    <div class="setting-row">
+                        <label for="lunchDuration">Lunch Duration (mins):</label>
+                        <input type="number" id="lunchDuration" value="60" min="15" max="120">
+                    </div>
+                    <div class="setting-row">
+                        <label for="breakDuration">Break Duration (mins):</label>
+                        <input type="number" id="breakDuration" value="15" min="5" max="30">
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>Integrations</h4>
+                    <div class="integration-buttons">
+                        <button class="integration-btn" id="googleCalBtn">
+                            <i class="fab fa-google"></i>
+                            Connect Google Calendar
+                        </button>
+                        <button class="integration-btn" id="notionBtn">
+                            <i class="fas fa-book"></i>
+                            Connect Notion
+                        </button>
+                        <button class="integration-btn" id="slackBtn">
+                            <i class="fab fa-slack"></i>
+                            Connect Slack
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="save-btn" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Edit Modal -->
+    <div id="taskEditModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Edit Task</h3>
+                <button class="modal-close" id="closeTaskEdit">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label for="editTaskName">Task Name:</label>
+                    <input type="text" id="editTaskName" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="editTaskDuration">Duration (minutes):</label>
+                    <input type="number" id="editTaskDuration" class="form-input" min="5" max="480">
+                </div>
+                <div class="form-group">
+                    <label for="editTaskPriority">Priority:</label>
+                    <select id="editTaskPriority" class="form-input">
+                        <option value="1">Low</option>
+                        <option value="2">Medium-Low</option>
+                        <option value="3">Medium</option>
+                        <option value="4">High</option>
+                        <option value="5">Critical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="save-btn" id="saveTaskEdit">Save Changes</button>
+                <button class="cancel-btn" id="cancelTaskEdit">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-brain fa-spin"></i>
+            <p>AI is optimizing your schedule...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/schedule.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 
