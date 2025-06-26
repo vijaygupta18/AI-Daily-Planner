@@ -241,61 +241,130 @@ class App {
         const container = document.getElementById('taskQueue');
         container.innerHTML = '';
         
-        const unscheduledTasks = this.tasks.filter(task => {
+        // Show all tasks, both completed and uncompleted
+        const allTasks = this.tasks.filter(task => {
             const isScheduled = this.schedule.some(slot => 
                 slot.task && slot.task.id === task.id
             );
-            return !isScheduled && !task.completed;
+            return !isScheduled; // Show both completed and uncompleted unscheduled tasks
         });
         
-        if (unscheduledTasks.length === 0) {
+        // Sort tasks: uncompleted first, then completed
+        allTasks.sort((a, b) => {
+            if (a.completed === b.completed) {
+                return b.priority - a.priority; // Higher priority first within same completion status
+            }
+            return a.completed - b.completed; // Uncompleted (false) first
+        });
+        
+        if (allTasks.length === 0) {
             container.innerHTML = '<p class="empty-message slide-in-up">No tasks in queue. Add some tasks to get started! 🚀</p>';
             return;
         }
         
-        unscheduledTasks.forEach((task, index) => {
-            const taskCard = this.createTaskCard(task);
-            taskCard.classList.add('slide-in-left');
-            taskCard.style.animationDelay = `${index * 0.1}s`;
-            container.appendChild(taskCard);
-        });
+        // Add section headers if we have both completed and uncompleted tasks
+        const uncompletedTasks = allTasks.filter(task => !task.completed);
+        const completedTasks = allTasks.filter(task => task.completed);
+        
+        let index = 0;
+        
+        // Render uncompleted tasks first
+        if (uncompletedTasks.length > 0) {
+            const uncompletedHeader = document.createElement('div');
+            uncompletedHeader.className = 'task-section-header';
+            uncompletedHeader.innerHTML = `
+                <h4>
+                    <i class="fas fa-list"></i> 
+                    Pending Tasks (${uncompletedTasks.length})
+                </h4>
+            `;
+            container.appendChild(uncompletedHeader);
+            
+            uncompletedTasks.forEach((task) => {
+                const taskCard = this.createTaskCard(task);
+                taskCard.classList.add('slide-in-left');
+                taskCard.style.animationDelay = `${index * 0.1}s`;
+                container.appendChild(taskCard);
+                index++;
+            });
+        }
+        
+        // Render completed tasks
+        if (completedTasks.length > 0) {
+            const completedHeader = document.createElement('div');
+            completedHeader.className = 'task-section-header';
+            completedHeader.innerHTML = `
+                <h4>
+                    <i class="fas fa-check-circle"></i> 
+                    Completed Tasks (${completedTasks.length})
+                </h4>
+            `;
+            completedHeader.style.marginTop = uncompletedTasks.length > 0 ? '2rem' : '0';
+            container.appendChild(completedHeader);
+            
+            completedTasks.forEach((task) => {
+                const taskCard = this.createTaskCard(task);
+                taskCard.classList.add('slide-in-left');
+                taskCard.style.animationDelay = `${index * 0.1}s`;
+                container.appendChild(taskCard);
+                index++;
+            });
+        }
     }
 
     createTaskCard(task) {
         const card = document.createElement('div');
-        card.className = 'task-card';
-        card.draggable = true;
+        card.className = `task-card ${task.completed ? 'completed' : ''}`;
+        card.draggable = !task.completed; // Don't allow dragging completed tasks
         card.dataset.taskId = task.id;
+        
+        const priorityEmoji = task.priority >= 4 ? '🔥' : 
+                             task.priority >= 3 ? '⭐' : '📝';
         
         card.innerHTML = `
             <div class="task-priority priority-${task.priority}"></div>
-            <div class="task-info">
-                <div class="task-name">${this.escapeHtml(task.name)}</div>
-                <div class="task-meta">
+            <div class="task-info ${task.completed ? 'completed-task' : ''}">
+                <div class="task-name">
+                    ${task.completed ? '<i class="fas fa-check-circle task-completed-icon"></i>' : ''}
+                    <span class="task-emoji">${priorityEmoji}</span>
+                    <span class="${task.completed ? 'task-completed-text' : ''}">${this.escapeHtml(task.name)}</span>
+                    ${task.completed ? '<span class="completed-badge">COMPLETED</span>' : ''}
+                </div>
+                <div class="task-meta ${task.completed ? 'task-completed-text' : ''}">
                     <span><i class="fas fa-clock"></i> ${task.duration} mins</span>
                     ${task.deadline ? `<span><i class="fas fa-calendar-alt"></i> ${new Date(task.deadline).toLocaleDateString()}</span>` : ''}
                     ${task.preferred_time ? `<span><i class="fas fa-sun"></i> ${task.preferred_time}</span>` : ''}
                 </div>
             </div>
             <div class="task-actions">
-                <button onclick="app.editTask('${task.id}')" title="Edit">
+                <button 
+                    onclick="app.toggleTaskCompletion('${task.id}')" 
+                    title="${task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}"
+                    class="task-toggle-btn ${task.completed ? 'mark-incomplete' : 'mark-complete'}"
+                >
+                    <i class="fas ${task.completed ? 'fa-undo' : 'fa-check'}"></i>
+                    <span>${task.completed ? 'Undo' : 'Done'}</span>
+                </button>
+                <button onclick="app.editTask('${task.id}')" title="Edit" class="task-edit-btn">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="app.deleteTask('${task.id}')" title="Delete">
+                <button onclick="app.deleteTask('${task.id}')" title="Delete" class="task-delete-btn">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
         
-        // Add drag events
-        card.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('taskId', task.id);
-            card.classList.add('dragging');
-        });
-        
-        card.addEventListener('dragend', () => {
-            card.classList.remove('dragging');
-        });
+        // Add drag events only for uncompleted tasks
+        if (!task.completed) {
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('taskId', task.id);
+                card.classList.add('dragging');
+            });
+            
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+            });
+        }
         
         return card;
     }
@@ -362,16 +431,21 @@ class App {
             content.innerHTML = `
                 <div class="slot-task-name">
                     <span class="task-emoji">${priorityEmoji}</span>
-                    ${this.escapeHtml(slot.task.name)}
+                    <span class="${slot.task.completed ? 'task-completed-text' : ''}">${this.escapeHtml(slot.task.name)}</span>
+                    ${slot.task.completed ? '<span class="completed-badge timeline-completed">COMPLETED</span>' : ''}
                 </div>
-                <div class="slot-duration">${startTime} - ${endTime}</div>
+                <div class="slot-duration ${slot.task.completed ? 'task-completed-text' : ''}">${startTime} - ${endTime}</div>
                 <div class="slot-task-meta">
                     <div class="slot-priority ${slot.task.priority >= 4 ? 'high' : slot.task.priority >= 3 ? 'medium' : 'low'}">
                         ${priorityText}
                     </div>
                     <div class="slot-actions">
-                        <button class="slot-action-btn complete" onclick="app.toggleTaskCompletion('${slot.task.id}')" title="Mark Complete">
-                            <i class="fas fa-check"></i>
+                        <button 
+                            class="slot-action-btn ${slot.task.completed ? 'incomplete' : 'complete'}" 
+                            onclick="app.toggleTaskCompletion('${slot.task.id}')" 
+                            title="${slot.task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}"
+                        >
+                            <i class="fas ${slot.task.completed ? 'fa-undo' : 'fa-check'}"></i>
                         </button>
                         <button class="slot-action-btn edit" onclick="app.editTask('${slot.task.id}')" title="Edit Task">
                             <i class="fas fa-edit"></i>
@@ -412,18 +486,30 @@ class App {
             
             // Update UI
             this.renderSchedule();
+            this.renderTaskQueue(); // Also update task queue to reflect completion status
             this.updateAnalytics();
             
             // Show success animation for completion
             if (task.completed) {
-                this.showSuccess(`✅ Great job! Task "${task.name}" completed!`);
+                this.showSuccess(`Great job! Task "${task.name}" completed!`);
                 
-                // Add celebration effect
+                // Add celebration effect to the task card if visible
+                const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (taskCard) {
+                    taskCard.classList.add('just-completed');
+                    setTimeout(() => {
+                        taskCard.classList.remove('just-completed');
+                    }, 600);
+                }
+                
+                // Add success glow effect
                 const scheduleSection = document.querySelector('.schedule-section');
                 scheduleSection.classList.add('success-glow');
                 setTimeout(() => {
                     scheduleSection.classList.remove('success-glow');
                 }, 2000);
+            } else {
+                this.showSuccess(`🔄 Task "${task.name}" marked as incomplete`);
             }
             
             // Update analytics

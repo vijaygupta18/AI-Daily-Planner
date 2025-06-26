@@ -372,12 +372,13 @@ body {
     color: var(--text-secondary);
 }
 
-.task-actions {
+/* Legacy task actions - kept for compatibility */
+.task-actions-legacy {
     display: flex;
     gap: 0.5rem;
 }
 
-.task-actions button {
+.task-actions-legacy button {
     width: 32px;
     height: 32px;
     border-radius: var(--radius);
@@ -390,7 +391,7 @@ body {
     transition: all 0.2s;
 }
 
-.task-actions button:hover {
+.task-actions-legacy button:hover {
     background: var(--background);
 }
 
@@ -1116,4 +1117,264 @@ select.form-input option {
 .time-slot:nth-child(2) { animation-delay: 0.2s; }
 .time-slot:nth-child(3) { animation-delay: 0.3s; }
 .time-slot:nth-child(4) { animation-delay: 0.4s; }
-.time-slot:nth-child(5) { animation-delay: 0.5s; } 
+.time-slot:nth-child(5) { animation-delay: 0.5s; }
+
+/* Task Section Headers */
+.task-section-header {
+    margin: 1rem 0 0.75rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.task-section-header h4 {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.task-section-header h4 i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* Enhanced Task Cards - Updated */
+
+.completed-task .task-name {
+    position: relative;
+}
+
+.task-completed-icon {
+    color: #22c55e !important;
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Old task-completed-text style removed - see enhanced version below */
+
+.task-emoji {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Task Action Buttons */
+.task-actions {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.task-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    min-width: 70px;
+}
+
+.task-toggle-btn.mark-complete {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.task-toggle-btn.mark-complete:hover {
+    background: rgba(34, 197, 94, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.task-toggle-btn.mark-incomplete {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.task-toggle-btn.mark-incomplete:hover {
+    background: rgba(245, 158, 11, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.task-edit-btn, .task-delete-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.task-edit-btn:hover {
+    color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.task-delete-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Enhanced Slot Action Buttons */
+.slot-action-btn.incomplete {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.slot-action-btn.incomplete:hover {
+    background: rgba(245, 158, 11, 0.2);
+    color: #d97706;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Enhanced Completed Timeline Items - Updated */
+
+/* Animations for Completion - Updated */
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .task-toggle-btn span {
+        display: none;
+    }
+    
+    .task-toggle-btn {
+        min-width: auto;
+        padding: 0.4rem;
+    }
+    
+    .task-actions {
+        gap: 0.2rem;
+    }
+}
+
+/* Completed Badge */
+.completed-badge {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.completed-badge.timeline-completed {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.75rem;
+}
+
+/* Enhanced Strikethrough */
+.task-completed-text {
+    text-decoration: line-through !important;
+    text-decoration-color: #22c55e !important;
+    text-decoration-thickness: 2px !important;
+    opacity: 0.8 !important;
+    color: #6b7280 !important;
+}
+
+/* Enhanced Task Completed Styles */
+.task-card.completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 6px solid #22c55e;
+    opacity: 0.9;
+    position: relative;
+    transform: none;
+}
+
+.task-card.completed:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.task-card.completed::after {
+    content: "✅";
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.3rem;
+    z-index: 1;
+    animation: bounce 1s ease-in-out;
+}
+
+/* Timeline Completed Enhancements */
+.slot-content.completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+    border-left: 6px solid #22c55e !important;
+    border-color: #22c55e !important;
+    position: relative;
+}
+
+.time-slot.completed::before {
+    content: "✅";
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.2rem;
+    z-index: 10;
+    animation: bounce 1s ease-in-out;
+}
+
+/* Bounce Animation for Checkmarks */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Completion Success Animation */
+.task-card.just-completed {
+    animation: completeTask 0.8s ease-out;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+@keyframes completeTask {
+    0% {
+        transform: scale(1);
+        background: var(--card-background);
+        box-shadow: none;
+    }
+    25% {
+        transform: scale(1.05);
+        background: #dcfce7;
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+    }
+    50% {
+        transform: scale(1.02);
+        background: #f0fdf4;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+    }
+} 
