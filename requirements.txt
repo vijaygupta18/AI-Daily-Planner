@@ -1,0 +1,15 @@
+flask==3.0.0
+flask-cors==4.0.0
+spacy==3.7.2
+numpy==1.24.3
+pandas==2.0.3
+google-auth==2.23.4
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+google-api-python-client==2.108.0
+notion-client==2.2.1
+slack-sdk==3.26.1
+reportlab==4.0.7
+apscheduler==3.10.4
+python-dateutil==2.8.2
+pytz==2023.3 
