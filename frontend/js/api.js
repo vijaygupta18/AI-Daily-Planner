@@ -1,7 +1,7 @@
 // API Client for Backend Communication
 class API {
     constructor() {
-        this.baseURL = 'http://localhost:5000/api';
+        this.baseURL = 'http://localhost:5001/api';
         this.headers = {
             'Content-Type': 'application/json'
         };

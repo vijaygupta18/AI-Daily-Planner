@@ -150,11 +150,11 @@ class NLPTaskParser:
         
         # Relative dates
         if 'tomorrow' in text_lower:
-            return now + timedelta(days=1)
+            return now.replace(hour=23, minute=59) + timedelta(days=1)
         elif 'today' in text_lower or 'tonight' in text_lower:
             return now.replace(hour=23, minute=59)
         elif 'next week' in text_lower:
-            return now + timedelta(weeks=1)
+            return now.replace(hour=23, minute=59) + timedelta(weeks=1)
         
         # Day names
         days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']

@@ -30,6 +30,26 @@ report_gen = ReportGenerator()
 # Ensure database is initialized
 db.init_db()
 
+def _parse_deadline(deadline_str):
+    """Parse deadline string from various formats"""
+    if not deadline_str:
+        return None
+    
+    try:
+        # Try ISO format first
+        return datetime.fromisoformat(deadline_str.replace('Z', '+00:00'))
+    except ValueError:
+        try:
+            # Try GMT format
+            return datetime.strptime(deadline_str, '%a, %d %b %Y %H:%M:%S %Z')
+        except ValueError:
+            try:
+                # Try simple ISO format
+                return datetime.fromisoformat(deadline_str)
+            except ValueError:
+                # Return None if all parsing fails
+                return None
+
 @app.route('/')
 def index():
     """Serve the main HTML file"""
@@ -80,7 +100,7 @@ def optimize_schedule():
                 name=task_data['name'],
                 duration=task_data['duration'],
                 priority=task_data.get('priority', 3),
-                deadline=datetime.fromisoformat(task_data['deadline']) if task_data.get('deadline') else None,
+                deadline=_parse_deadline(task_data.get('deadline')) if task_data.get('deadline') else None,
                 preferred_time=task_data.get('preferred_time')
             )
             tasks.append(task)
@@ -372,4 +392,4 @@ def handle_preferences():
         }), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(debug=True, port=5001, host='0.0.0.0') 
