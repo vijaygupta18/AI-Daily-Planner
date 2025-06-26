@@ -58,17 +58,34 @@ def index():
 @app.route('/css/<path:filename>')
 def serve_css(filename):
     """Serve CSS files"""
-    return send_from_directory('../../frontend/css', filename)
+    response = send_from_directory('../../frontend/css', filename)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/js/<path:filename>')
 def serve_js(filename):
     """Serve JavaScript files"""
-    return send_from_directory('../../frontend/js', filename)
+    response = send_from_directory('../../frontend/js', filename)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/favicon.ico')
 def serve_favicon():
     """Serve favicon"""
     return send_from_directory('../../frontend', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """Serve static files"""
+    response = send_from_directory('../../frontend', filename)
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/api/parse-task', methods=['POST'])
 def parse_task():
@@ -407,4 +424,7 @@ def handle_preferences():
         }), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001, host='0.0.0.0') 
+    # Configure static files and enable auto-reload
+    app.static_folder = '../../frontend'
+    app.static_url_path = '/static'
+    app.run(debug=True, port=5001, host='0.0.0.0', use_reloader=True, threaded=True) 

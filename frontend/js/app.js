@@ -382,6 +382,8 @@ class App {
             
             if (slot.task.completed) {
                 slotDiv.classList.add('completed');
+                content.style.textDecoration = 'line-through';
+                content.style.opacity = '0.7';
             }
         }
         
@@ -545,11 +547,21 @@ class App {
     }
 
     async showSettings() {
-        // Load current preferences
-        document.getElementById('workStart').value = `${this.preferences.work_start_hour.toString().padStart(2, '0')}:00`;
-        document.getElementById('workEnd').value = `${this.preferences.work_end_hour.toString().padStart(2, '0')}:00`;
-        document.getElementById('lunchDuration').value = this.preferences.lunch_duration;
-        document.getElementById('breakDuration').value = this.preferences.break_duration;
+        // Ensure preferences are loaded with defaults
+        if (!this.preferences || Object.keys(this.preferences).length === 0) {
+            this.preferences = this.getDefaultPreferences();
+        }
+        
+        // Load current preferences with fallbacks
+        const workStart = this.preferences.work_start_hour || 8;
+        const workEnd = this.preferences.work_end_hour || 20;
+        const lunchDuration = this.preferences.lunch_duration || 60;
+        const breakDuration = this.preferences.break_duration || 15;
+        
+        document.getElementById('workStart').value = `${workStart.toString().padStart(2, '0')}:00`;
+        document.getElementById('workEnd').value = `${workEnd.toString().padStart(2, '0')}:00`;
+        document.getElementById('lunchDuration').value = lunchDuration;
+        document.getElementById('breakDuration').value = breakDuration;
         
         this.showModal('settingsModal');
     }

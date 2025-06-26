@@ -411,10 +411,6 @@ body {
 .schedule-timeline {
     position: relative;
     padding-left: 80px;
-    background: linear-gradient(to bottom, transparent 0%, transparent 50%, var(--border-color) 50%, var(--border-color) 100%);
-    background-size: 1px 2px;
-    background-repeat: repeat-y;
-    background-position: 70px 0;
 }
 
 .time-slot {
@@ -425,27 +421,7 @@ body {
     position: relative;
 }
 
-.time-slot::before {
-    content: '';
-    position: absolute;
-    left: 68px;
-    top: 50%;
-    width: 12px;
-    height: 12px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    transform: translateY(-50%);
-    border: 3px solid var(--surface);
-    z-index: 2;
-}
-
-.time-slot.break::before {
-    background: var(--text-light);
-}
-
-.time-slot.completed::before {
-    background: var(--success-color);
-}
+/* Removed timeline dots - they were causing visual clutter */
 
 .time-label {
     position: absolute;
@@ -500,13 +476,33 @@ body {
 }
 
 .slot-content.completed {
-    opacity: 0.7;
+    opacity: 0.8;
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border-color: var(--success-color);
+    position: relative;
 }
 
 .slot-content.completed::before {
     background: var(--success-color);
+}
+
+.slot-content.completed::after {
+    content: '✅';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.2rem;
+    z-index: 3;
+}
+
+.slot-content.completed .slot-task-name {
+    text-decoration: line-through;
+    color: var(--success-color);
+}
+
+.slot-content.completed .slot-duration {
+    text-decoration: line-through;
+    opacity: 0.7;
 }
 
 .slot-content.high-priority::before {
@@ -790,6 +786,7 @@ body {
     font-size: 1rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 .setting-row {
@@ -802,13 +799,78 @@ body {
 .setting-row label {
     flex: 1;
     color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .setting-row input {
     width: 150px;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
     border-radius: var(--radius);
+    transition: var(--transition);
+    background: var(--surface);
+}
+
+.setting-row input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Enhanced Edit Modal */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-input::placeholder {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* Priority Select Enhancement */
+select.form-input {
+    cursor: pointer;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+select.form-input option {
+    padding: 0.5rem;
+    background: var(--surface);
+    color: var(--text-primary);
 }
 
 .integration-buttons {
