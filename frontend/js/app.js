@@ -249,12 +249,14 @@ class App {
         });
         
         if (unscheduledTasks.length === 0) {
-            container.innerHTML = '<p class="empty-message">No tasks in queue. Add some tasks to get started!</p>';
+            container.innerHTML = '<p class="empty-message slide-in-up">No tasks in queue. Add some tasks to get started! 🚀</p>';
             return;
         }
         
-        unscheduledTasks.forEach(task => {
+        unscheduledTasks.forEach((task, index) => {
             const taskCard = this.createTaskCard(task);
+            taskCard.classList.add('slide-in-left');
+            taskCard.style.animationDelay = `${index * 0.1}s`;
             container.appendChild(taskCard);
         });
     }
@@ -303,12 +305,14 @@ class App {
         container.innerHTML = '';
         
         if (this.schedule.length === 0) {
-            container.innerHTML = '<p class="empty-message">No schedule yet. Add tasks and click "Optimize Schedule" to generate one!</p>';
+            container.innerHTML = '<p class="empty-message slide-in-up">No schedule yet. Add tasks and click "Optimize Schedule" to generate one! 🎯</p>';
             return;
         }
         
-        this.schedule.forEach(slot => {
+        this.schedule.forEach((slot, index) => {
             const slotElement = this.createTimeSlot(slot);
+            slotElement.classList.add('slide-in-up');
+            slotElement.style.animationDelay = `${index * 0.1}s`;
             container.appendChild(slotElement);
         });
     }
@@ -336,18 +340,49 @@ class App {
         
         if (slot.is_break) {
             content.innerHTML = `
-                <div class="slot-task-name">Break</div>
+                <div class="slot-task-name">
+                    <span class="task-emoji">☕</span>
+                    Break Time
+                </div>
                 <div class="slot-duration">${startTime} - ${endTime}</div>
             `;
+            slotDiv.classList.add('break');
         } else if (slot.task) {
+            const priorityClass = slot.task.priority >= 4 ? 'high-priority' : 
+                                 slot.task.priority >= 3 ? 'medium-priority' : 'low-priority';
+            
+            const priorityEmoji = slot.task.priority >= 4 ? '🔥' : 
+                                 slot.task.priority >= 3 ? '⭐' : '📝';
+            
+            const priorityText = slot.task.priority >= 4 ? 'HIGH' : 
+                                slot.task.priority >= 3 ? 'MED' : 'LOW';
+            
+            content.classList.add(priorityClass);
+            
             content.innerHTML = `
-                <div class="slot-task-name">${this.escapeHtml(slot.task.name)}</div>
+                <div class="slot-task-name">
+                    <span class="task-emoji">${priorityEmoji}</span>
+                    ${this.escapeHtml(slot.task.name)}
+                </div>
                 <div class="slot-duration">${startTime} - ${endTime}</div>
+                <div class="slot-task-meta">
+                    <div class="slot-priority ${slot.task.priority >= 4 ? 'high' : slot.task.priority >= 3 ? 'medium' : 'low'}">
+                        ${priorityText}
+                    </div>
+                    <div class="slot-actions">
+                        <button class="slot-action-btn complete" onclick="app.toggleTaskCompletion('${slot.task.id}')" title="Mark Complete">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="slot-action-btn edit" onclick="app.editTask('${slot.task.id}')" title="Edit Task">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
             `;
             
-            content.addEventListener('click', () => {
-                this.toggleTaskCompletion(slot.task.id);
-            });
+            if (slot.task.completed) {
+                slotDiv.classList.add('completed');
+            }
         }
         
         slotDiv.appendChild(timeLabel);
@@ -376,6 +411,18 @@ class App {
             // Update UI
             this.renderSchedule();
             this.updateAnalytics();
+            
+            // Show success animation for completion
+            if (task.completed) {
+                this.showSuccess(`✅ Great job! Task "${task.name}" completed!`);
+                
+                // Add celebration effect
+                const scheduleSection = document.querySelector('.schedule-section');
+                scheduleSection.classList.add('success-glow');
+                setTimeout(() => {
+                    scheduleSection.classList.remove('success-glow');
+                }, 2000);
+            }
             
             // Update analytics
             await storage.saveAnalytics('task_completion', {
@@ -626,14 +673,114 @@ class App {
     }
 
     showSuccess(message) {
-        // You could implement a toast notification system here
-        console.log('Success:', message);
+        this.showToast(message, 'success');
     }
 
     showError(message) {
-        // You could implement a toast notification system here
-        console.error('Error:', message);
-        alert(message);
+        this.showToast(message, 'error');
+    }
+    
+    showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} slide-in-up`;
+        
+        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-icon">${icon}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Add toast styles if not exist
+        if (!document.querySelector('#toast-styles')) {
+            const style = document.createElement('style');
+            style.id = 'toast-styles';
+            style.textContent = `
+                .toast {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    min-width: 300px;
+                    max-width: 500px;
+                    border-radius: var(--radius-lg);
+                    box-shadow: var(--shadow-xl);
+                    overflow: hidden;
+                }
+                
+                .toast-success {
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    color: white;
+                }
+                
+                .toast-error {
+                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                    color: white;
+                }
+                
+                .toast-info {
+                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                    color: white;
+                }
+                
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 16px 20px;
+                }
+                
+                .toast-icon {
+                    font-size: 18px;
+                }
+                
+                .toast-message {
+                    flex: 1;
+                    font-weight: 500;
+                }
+                
+                .toast-close {
+                    background: transparent;
+                    border: none;
+                    color: currentColor;
+                    cursor: pointer;
+                    opacity: 0.8;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: var(--transition);
+                }
+                
+                .toast-close:hover {
+                    opacity: 1;
+                    background: rgba(255, 255, 255, 0.1);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Add to page
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
     }
 
     escapeHtml(text) {
