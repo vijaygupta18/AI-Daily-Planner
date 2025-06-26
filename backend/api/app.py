@@ -55,6 +55,21 @@ def index():
     """Serve the main HTML file"""
     return send_from_directory('../../frontend', 'index.html')
 
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    """Serve CSS files"""
+    return send_from_directory('../../frontend/css', filename)
+
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    """Serve JavaScript files"""
+    return send_from_directory('../../frontend/js', filename)
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    """Serve favicon"""
+    return send_from_directory('../../frontend', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.route('/api/parse-task', methods=['POST'])
 def parse_task():
     """Parse natural language task input"""
