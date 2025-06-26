@@ -427,13 +427,20 @@ body {
 .time-label {
     position: absolute;
     left: 0;
-    width: 65px;
+    width: 85px;
     font-size: 0.875rem;
     color: var(--text-secondary);
     font-weight: 600;
     text-align: right;
     top: 50%;
     transform: translateY(-50%);
+    padding-right: 10px;
+    z-index: 10;
+    background: var(--background);
+    border-radius: var(--radius);
+    padding: 0.25rem 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .slot-content {
@@ -442,7 +449,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
-    margin-left: 20px;
+    margin-left: 100px;
     transition: var(--transition);
     cursor: pointer;
     position: relative;
@@ -1260,6 +1267,22 @@ select.form-input option {
     
     .task-actions {
         gap: 0.2rem;
+    }
+
+    /* Mobile timeline adjustments */
+    .time-label {
+        width: 70px;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .slot-content {
+        margin-left: 85px;
+        padding: 1rem;
+    }
+
+    .slot-task-name {
+        font-size: 1rem;
     }
 }
 
