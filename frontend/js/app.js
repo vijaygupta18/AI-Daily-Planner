@@ -343,7 +343,7 @@ class App {
                     class="task-toggle-btn ${task.completed ? 'mark-incomplete' : 'mark-complete'}"
                 >
                     <i class="fas ${task.completed ? 'fa-undo' : 'fa-check'}"></i>
-                    <span>${task.completed ? 'Undo' : 'Done'}</span>
+                    <span>${task.completed ? 'Incomplete' : 'Complete'}</span>
                 </button>
                 <button onclick="app.editTask('${task.id}')" title="Edit" class="task-edit-btn">
                     <i class="fas fa-edit"></i>
@@ -470,9 +470,14 @@ class App {
     async toggleTaskCompletion(taskId) {
         try {
             const task = this.tasks.find(t => t.id === taskId);
-            if (!task) return;
+            if (!task) {
+                console.error('Task not found:', taskId);
+                return;
+            }
             
+            console.log('Before toggle:', task.name, 'completed:', task.completed);
             task.completed = !task.completed;
+            console.log('After toggle:', task.name, 'completed:', task.completed);
             
             // Update storage
             await storage.updateTaskStatus(taskId, task.completed);
@@ -481,26 +486,36 @@ class App {
             try {
                 await this.api.completeTask(taskId, this.currentDate, task.completed);
             } catch (error) {
-                console.log('Server update failed');
+                console.log('Server update failed:', error);
             }
             
-            // Update UI
+            // Also update the task in the schedule array if it exists
+            this.schedule.forEach(slot => {
+                if (slot.task && slot.task.id === taskId) {
+                    console.log('Updating task in schedule slot');
+                    slot.task.completed = task.completed;
+                }
+            });
+            
+            // Force re-render immediately to show changes
             this.renderSchedule();
-            this.renderTaskQueue(); // Also update task queue to reflect completion status
+            this.renderTaskQueue();
             this.updateAnalytics();
             
             // Show success animation for completion
             if (task.completed) {
-                this.showSuccess(`Great job! Task "${task.name}" completed!`);
+                this.showSuccess(`✅ Great job! Task "${task.name}" completed!`);
                 
                 // Add celebration effect to the task card if visible
-                const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-                if (taskCard) {
-                    taskCard.classList.add('just-completed');
-                    setTimeout(() => {
-                        taskCard.classList.remove('just-completed');
-                    }, 600);
-                }
+                setTimeout(() => {
+                    const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+                    if (taskCard) {
+                        taskCard.classList.add('just-completed');
+                        setTimeout(() => {
+                            taskCard.classList.remove('just-completed');
+                        }, 600);
+                    }
+                }, 100);
                 
                 // Add success glow effect
                 const scheduleSection = document.querySelector('.schedule-section');
